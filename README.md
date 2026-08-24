@@ -16,9 +16,7 @@ Proto source was migrated from `media-scanner/proto/scannerv1/`.
 
 ## Go import
 
-Generated stubs (after `make proto`): `github.com/Muxcore-Media/contracts-scanner/muxcore/scanner/v1`
-
-Generated Go is not checked in yet; run `make proto` when `protoc` and the Go plugins are available.
+Generated stubs: `github.com/Muxcore-Media/contracts-scanner/muxcore/scanner/v1` (checked in; run `make proto` after `.proto` edits).
 
 ## Implementing Modules
 
