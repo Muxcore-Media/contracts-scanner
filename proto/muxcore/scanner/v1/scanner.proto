@@ -4,11 +4,22 @@ package muxcore.scanner.v1;
 
 option go_package = "github.com/Muxcore-Media/contracts-scanner/muxcore/scanner/v1;scannerv1";
 
+// Canonical media kind tokens for string fields (media_type) and MediaType enum.
+enum MediaType {
+  MEDIA_TYPE_UNSPECIFIED = 0;
+  MEDIA_TYPE_MOVIE = 1;
+  MEDIA_TYPE_TV = 2;
+  MEDIA_TYPE_BOTH = 3;
+  MEDIA_TYPE_MUSIC = 4;
+}
+
 service ScannerService {
   rpc Scan(ScanRequest) returns (ScanResponse);
   rpc ScanLibraryRoots(ScanLibraryRootsRequest) returns (ScanLibraryRootsResponse);
   rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
   rpc AddWatchDir(AddWatchDirRequest) returns (AddWatchDirResponse);
+  rpc UpdateWatchDir(UpdateWatchDirRequest) returns (UpdateWatchDirResponse);
+  rpc SetWatchDirEnabled(SetWatchDirEnabledRequest) returns (SetWatchDirEnabledResponse);
   rpc RemoveWatchDir(RemoveWatchDirRequest) returns (RemoveWatchDirResponse);
   rpc ListWatchDirs(ListWatchDirsRequest) returns (ListWatchDirsResponse);
   rpc ListImported(ListImportedRequest) returns (ListImportedResponse);
@@ -16,7 +27,11 @@ service ScannerService {
   rpc ListImportCandidates(ListImportCandidatesRequest) returns (ListImportCandidatesResponse);
 }
 
-message ScanRequest {}
+message ScanRequest {
+  bool dry_run = 1;
+  string path = 2;       // optional: scan only this path (watch dir or file)
+  string media_type = 3; // optional filter: movie, tv, both, music
+}
 
 message ScanResponse {
   int32 files_found = 1;
@@ -24,7 +39,11 @@ message ScanResponse {
   int32 files_skipped = 3;
 }
 
-message ScanLibraryRootsRequest {}
+message ScanLibraryRootsRequest {
+  bool dry_run = 1;
+  string path = 2;
+  string media_type = 3;
+}
 
 message ScanLibraryRootsResponse {
   int32 files_found = 1;
@@ -39,17 +58,41 @@ message GetStatsResponse {
   int32 watch_dirs = 2;
   int64 last_scan_at = 3;
   string last_scan_status = 4;
+  int32 last_scan_files_found = 5;
+  int32 last_scan_files_imported = 6;
+  int32 last_scan_files_skipped = 7;
+  string last_error = 8;
 }
 
 message AddWatchDirRequest {
   string path = 1;
-  string media_type = 2;  // "movie", "tv", "both"
-  string library_path = 3; // where to move organized files
+  string media_type = 2;         // movie, tv, both, music
+  string library_path = 3;       // movie (and default) library root
+  string tv_library_path = 4;    // TV library root when media_type is tv or both
+  string music_library_path = 5; // music library root when media_type is music or both
 }
 
 message AddWatchDirResponse {
   string id = 1;
 }
+
+message UpdateWatchDirRequest {
+  string id = 1;
+  string path = 2;
+  string media_type = 3;
+  string library_path = 4;
+  string tv_library_path = 5;
+  string music_library_path = 6;
+}
+
+message UpdateWatchDirResponse {}
+
+message SetWatchDirEnabledRequest {
+  string id = 1;
+  bool enabled = 2;
+}
+
+message SetWatchDirEnabledResponse {}
 
 message RemoveWatchDirRequest {
   string id = 1;
@@ -70,12 +113,15 @@ message WatchDir {
   string library_path = 4;
   bool enabled = 5;
   string created_at = 6;
+  string tv_library_path = 7;
+  string music_library_path = 8;
 }
 
 message ListImportedRequest {
   int32 page = 1;
   int32 page_size = 2;
   string media_type = 3;
+  string status = 4; // imported, failed, skipped
 }
 
 message ListImportedResponse {
@@ -99,6 +145,10 @@ message ImportedFile {
   int32 tmdb_id = 11;
   string imported_at = 12;
   string status = 13;
+  string error_message = 14;
+  string artist = 15;
+  string album = 16;
+  int32 track_number = 17;
 }
 
 message ImportPathRequest {
@@ -109,12 +159,24 @@ message ImportPathRequest {
   int32 year = 4;
   int32 season_number = 5;
   int32 episode_number = 6;
+  string artist = 7;
+  string album = 8;
+  int32 track_number = 9;
+  string media_type = 10; // movie, tv, music
+}
+
+message ImportPathResult {
+  string original_path = 1;
+  string destination_path = 2;
+  string status = 3; // imported, skipped, failed
+  string error = 4;
 }
 
 message ImportPathResponse {
   int32 files_found = 1;
   int32 files_imported = 2;
   int32 files_skipped = 3;
+  repeated ImportPathResult results = 4;
 }
 
 message ListImportCandidatesRequest {
@@ -126,6 +188,13 @@ message ImportCandidate {
   string name = 2;
   int64 size = 3;
   string watch_dir_id = 4;
+  string title = 5;
+  int32 year = 6;
+  string media_type = 7;
+  int32 season_number = 8;
+  int32 episode_number = 9;
+  string artist = 10;
+  string album = 11;
 }
 
 message ListImportCandidatesResponse {

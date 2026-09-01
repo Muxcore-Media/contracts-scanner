@@ -1,6 +1,6 @@
 {
   "name": "contracts-scanner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Media scanner contract interfaces for MuxCore",
   "capabilities": ["contracts.scanner"],
   "roles": ["contracts"]
