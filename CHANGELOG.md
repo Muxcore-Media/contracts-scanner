@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2026-10-05
+
+### Changed
+- CI runs on GitHub-hosted runners from the umbrella template; retired-origin workflows removed.
+- Dependencies resolve from published GitHub tags (no filesystem `replace`); requires core v0.6.0.
+
 ## [0.2.0] — 2026-08-31
 
 ### Added
@@ -12,7 +18,7 @@
 - `ListImportedRequest.status` filter; `ImportedFile.error_message` for failed imports.
 - Last-scan counters and `last_error` on `GetStatsResponse`.
 - `contract_test.go` freezing RPC names and field numbers.
-- Forgejo CI `proto-check` job.
+- CI `proto-check` job.
 
 ### Fixed
 - Makefile `clean` no longer deletes committed stubs under `muxcore/scanner/v1/`.
